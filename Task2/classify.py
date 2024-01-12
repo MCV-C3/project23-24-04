@@ -17,8 +17,8 @@ from tensorflow.keras.preprocessing.image import img_to_array
 
 
 IMG_SIZE     = 64
-VAL_DIR      = '/home/gherodes/projects/tf_test/MIT_split/test'
-MODEL_FNAME  = '/home/gherodes/projects/tf_test/my_first_mlp.h5'
+VAL_DIR      = '/home/georg/projects/university/C3_ML_for_CV/MIT_split/test'
+MODEL_FNAME  = '/home/georg/projects/university/C3_ML_for_CV/project23-24-04/my_first_mlp.h5'
 CLASSES      = ['coast','forest','highway','inside_city','mountain','Opencountry','street','tallbuilding']
 
 model = build_mlp(IMG_SIZE=IMG_SIZE,
