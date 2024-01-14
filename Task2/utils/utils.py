@@ -122,10 +122,3 @@ def split_image_into_patches(image, patch_size):
             patches.append(patch)
     return np.array(patches)
 
-def create_visual_words(image_paths, descriptors_dictionary, codebook):
-    visual_words = {}
-    for image_path in image_paths:
-        descriptor = descriptors_dictionary[os.path.basename(image_path)]
-        labels = codebook.predict(descriptor)
-        visual_words[image_path] = np.bincount(labels, minlength=codebook.n_clusters)
-    return np.array(list(visual_words.values()))
