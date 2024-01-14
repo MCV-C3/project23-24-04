@@ -3,7 +3,9 @@ import getpass
 
 
 from utils import *
-from MLP import *
+from MLP import build_mlp
+from long_residuals_mlp import build_long_residuals_mlp
+from short_residuals_mlp import build_short_residuals_mlp
 
 
 from tensorflow.keras.models import Sequential, Model
@@ -11,6 +13,7 @@ from tensorflow.keras.layers import Flatten, Dense, Reshape, Dropout
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.initializers import HeNormal, HeUniform
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 import tensorflow as tf
 
@@ -24,27 +27,52 @@ gpus = tf.config.list_physical_devices('GPU')
 for gpu in gpus:
     print("Name:", gpu.name, "  Type:", gpu.device_type)
 
-#user defined variables
-IMG_SIZE    = 64
-BATCH_SIZE  = 64
-LEARNING_RATE = 0.001
+# PATHS
 DATASET_DIR = '/home/gherodes/projects/tf_test/MIT_split'
-MODEL_FNAME = '//home/gherodes/projects/tf_test/my_first_mlp.h5'
-# MODEL_FNAME = '/home/group10/m3/my_first_mlp.h5'
+MODEL_FNAME = '/home/gherodes/projects/tf_test/my_first_mlp.h5'
+
+# HYPERPARAMS
+EPOCHS = 100
+PATIENCE = 10
+BATCH_SIZE  = 64
+LEARNING_RATE = 0.00001
+
+MODEL_TYPE = ['no_residuals', 'short_residuals', 'long_residuals']
+NUM_UNITS = [512, 1024, 2048, 4096]
+IMG_SIZE    = [32,64,128.256]
+IMG_SIZE = 64
+REGULARIZATION_COEFF = [0.01, 0.001, 0.0001, 0.00001]
+REGULARIZATION_COEFF = 0.0001
+
 
 if not os.path.exists(DATASET_DIR):
   print('ERROR: dataset directory '+DATASET_DIR+' does not exist!\n')
   quit()
 
 print('Building MLP model...\n')
-model = build_mlp( IMG_SIZE=IMG_SIZE,
-                  activation='relu')
+# model = build_mlp(IMG_SIZE=IMG_SIZE,
+#                   activation='relu')
 
+model =  build_residual_mlp(input_shape=(IMG_SIZE, IMG_SIZE, 3),
+                            activation='relu',
+                            regularization_coeff=REGULARIZATION_COEFF)
 
+lr_schedule = tf.keras.experimental.CosineDecay(
+    LEARNING_RATE, decay_steps=0.75 * EPOCHS*29, alpha=0.1)
 
-sgd_optimizer = tf.keras.optimizers.SGD(learning_rate=LEARNING_RATE)
+learning_rates = [lr_schedule(step).numpy() for step in range(EPOCHS*29)]
+# Plot the learning rates
+plt.plot(range(EPOCHS*29), learning_rates, label='Learning Rate')
+plt.xlabel('Training Step')
+plt.ylabel('Learning Rate')
+plt.title('Learning Rate Schedule')
+plt.legend()
+plt.savefig('learning_rate.jpg')
+plt.close()
+
+optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 model.compile(loss='categorical_crossentropy',
-              optimizer=sgd_optimizer,
+              optimizer=optimizer,
               metrics=['accuracy'])
 
 # initialize weights for the entire model using He normal distribution
@@ -60,11 +88,16 @@ print('Create ImageDataGenerators for train and test sets...\n')
 # this is the dataset configuration we will use for training
 # only rescaling
 train_datagen = ImageDataGenerator(
-        rescale=1./255,
+        rotation_range=45,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
         horizontal_flip=True,
-        vertical_flip=True,
-        rotation_range=90
-        )
+        vertical_flip=False,
+        brightness_range=[0.5, 1.5],
+        channel_shift_range=0.2,
+        rescale=1./255)
 
 # this is the dataset configuration we will use for testing:
 # only rescaling
@@ -79,7 +112,8 @@ train_generator = train_datagen.flow_from_directory(
         target_size=(IMG_SIZE, IMG_SIZE),  # all images will be resized to IMG_SIZExIMG_SIZE
         batch_size=BATCH_SIZE,
         classes = ['coast','forest','highway','inside_city','mountain','Opencountry','street','tallbuilding'],
-        class_mode='categorical')  # since we use binary_crossentropy loss, we need categorical labels
+        class_mode='categorical',# since we use binary_crossentropy loss, we need categorical labels
+        shuffle=True)  
 
 # this is a similar generator, for validation data
 validation_generator = test_datagen.flow_from_directory(
@@ -89,14 +123,32 @@ validation_generator = test_datagen.flow_from_directory(
         classes = ['coast','forest','highway','inside_city','mountain','Opencountry','street','tallbuilding'],
         class_mode='categorical')
 
+# Define the ModelCheckpoint and EarlyStopping callbacks
+checkpoint_path = MODEL_FNAME
+checkpoint = ModelCheckpoint(
+    checkpoint_path,
+    monitor='val_accuracy',  # You can change this to a different metric if needed
+    mode='max',
+    save_best_only=True,
+    verbose=0
+)
+
+early_stopping = EarlyStopping(
+    monitor='val_accuracy',  # You can change this to a different metric if needed
+    mode='max',
+    patience=PATIENCE,  # Number of epochs with no improvement after which training will be stopped
+    restore_best_weights=True,
+    verbose=1
+)
 print('Fitting model')
 
 history = model.fit(
         train_generator,
         steps_per_epoch=1881 // BATCH_SIZE,
-        epochs=50,
+        epochs=EPOCHS,
         validation_data=validation_generator,
         validation_steps=807 // BATCH_SIZE,
+        callbacks=[checkpoint, early_stopping],
         verbose=1)
 
 print('Done!\n')
@@ -122,6 +174,8 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'validation'], loc='upper left')
 plt.savefig('loss.jpg')
+plt.close()
+
 
 #to get the output of a given layer
  #crop the model up to a certain layer

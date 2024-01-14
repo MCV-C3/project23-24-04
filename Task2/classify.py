@@ -2,8 +2,8 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 import numpy as np
 
-from utils import *
-from MLP import *
+from utils.utils import *
+from utils.MLP import *
 
 
 from tensorflow.keras.models import Sequential, Model
@@ -16,12 +16,13 @@ from tensorflow.keras.preprocessing import image
 from tensorflow.keras.preprocessing.image import img_to_array
 
 
-IMG_SIZE     = 64
+PATCH_SIZE   = 32
+
 VAL_DIR      = '/home/georg/projects/university/C3_ML_for_CV/MIT_split/test'
 MODEL_FNAME  = '/home/georg/projects/university/C3_ML_for_CV/project23-24-04/my_first_mlp.h5'
 CLASSES      = ['coast','forest','highway','inside_city','mountain','Opencountry','street','tallbuilding']
 
-model = build_mlp(IMG_SIZE=IMG_SIZE,
+model = build_mlp(IMG_SIZE=PATCH_SIZE,
                   activation='relu')
 
 model.load_weights(MODEL_FNAME)
@@ -36,7 +37,7 @@ for cls in os.listdir(VAL_DIR):
     image_paths = [os.path.join(subdirectory_path, image_file) for image_file in os.listdir(subdirectory_path)]
     for image_path in image_paths:
         img = load_and_preprocess_image(image_path=image_path,
-                                        target_size=(IMG_SIZE, IMG_SIZE))
+                                        target_size=(PATCH_SIZE, PATCH_SIZE))
  
         pred = list(model.predict(img)[0])
         pred = pred.index(max(pred))
@@ -48,9 +49,12 @@ for cls in os.listdir(VAL_DIR):
         layer_output = model_layer.predict(img)
         print(layer_output)
 
+# plot preds
+
 
 create_confusion_matrix(targets, preds)
 metrics = get_metrics(targets, preds)
 print(metrics)
+
 
 

@@ -117,7 +117,7 @@ for class_dir in os.listdir(directory):
       im = Image.open(os.path.join(directory,class_dir,imname))
       patches = image.extract_patches_2d(np.array(im), (PATCH_SIZE, PATCH_SIZE), max_patches=1)
       out = model.predict(patches/255.)
-      predicted_cls = np.argmax( softmax(np.mean(out,axis=0)) )
+      predicted_cls = np.argmax(softmax(np.mean(out,axis=0)) )
       if predicted_cls == cls:
         correct+=1
       count += 1

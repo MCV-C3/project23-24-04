@@ -13,6 +13,8 @@ import seaborn as sn
 import os 
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+import pandas as pd
+from numpy import genfromtxt
 
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
@@ -37,7 +39,6 @@ def generate_image_patches_db(in_directory,out_directory,patch_size=64):
       for imname in os.listdir(os.path.join(in_directory,split_dir,class_dir)):
         count += 1
         im = Image.open(os.path.join(in_directory,split_dir,class_dir,imname))
-        print(im.size)
         print('Processed images: '+str(count)+' / '+str(total), end='\r')
         patches = image.extract_patches_2d(np.array(im), (64, 64), max_patches=1)
         for i,patch in enumerate(patches):
@@ -88,4 +89,43 @@ def get_metrics(y_true, y_pred):
     precision = precision_score(y_true, y_pred, average='macro')
     f1 = f1_score(y_true, y_pred, average='macro')
  
-    return accuracy, recall, precision, f1    
+    return accuracy, recall, precision, f1   
+
+def load_data_from_directory(path):
+    image_paths = []
+    labels = []
+    for class_directory in os.listdir(path):
+        image_file_names = os.listdir(os.path.join(path, class_directory))
+        for image_file_name in image_file_names:
+            image_paths.append(os.path.join(path, class_directory, image_file_name))
+            labels.append(class_directory)
+    return image_paths, labels
+
+def read_embeddings(directory):
+  embeddings = {}
+  for embedding_file_name in os.listdir(directory):
+    embedding_path = os.path.join(directory, embedding_file_name)
+    embedding = genfromtxt(embedding_path, delimiter=',')
+    embeddings[embedding_file_name.replace('csv', 'jpg')] = embedding
+  return embeddings
+
+
+
+
+# function to split 1x265x265x3 image into patches of specific size
+def split_image_into_patches(image, patch_size):
+    patches = []
+    
+    for i in range(0, image.shape[1], patch_size):
+        for j in range(0, image.shape[2], patch_size):
+            patch = image[:, i:i+patch_size, j:j+patch_size, :]
+            patches.append(patch)
+    return np.array(patches)
+
+def create_visual_words(image_paths, descriptors_dictionary, codebook):
+    visual_words = {}
+    for image_path in image_paths:
+        descriptor = descriptors_dictionary[os.path.basename(image_path)]
+        labels = codebook.predict(descriptor)
+        visual_words[image_path] = np.bincount(labels, minlength=codebook.n_clusters)
+    return np.array(list(visual_words.values()))
