@@ -29,19 +29,18 @@ The best SVM classification method used 1024 clusters for the codebook, the line
 
 ## Task2 work
 
-# Steps to get intermediate layer activations #
-1. Pull this repo from github
-2. Start/activate virtual environment
-3. Install python dependencies:
-```pip install -r requirements.txt```
-4. Go to Task2 directory: `cd Task2`
-5. Download weights from `https://drive.google.com/drive/u/1/folders/1EtQ9Bw6TV4kxkJbnfDgVJ5IScc51MeRr` and move to `Task2` directory
-6. Change `VAL_DIR` and `MODEL_FNAME` variables to your local values
-7. Run `classify.py`, the line `layer_output = model_layer.predict(img)` extracts activations at the 2nd to last layer. 
-8. To change what layer the activations are extracted from:
-    - Check layer names from `MLP.py` (most are named 'first', 'second', 'third', etc, pick one of those)
-    - Change the layer name in the line: `model_layer = Model(inputs=model.input, outputs=model.get_layer('second').output)` to your desired layer.
+This week's task was to firstly train an MLP to classify images, and then feed the intermediary activations of the MLP to an SVM or BoVW to classify the image. 
+We first defined multiple architectures of MLP-s and tested them with various image sizes and hyperparameters in `gridsearch_neuralnets.py`. After obtaining the best combination of architecture and hyperparameters we extracted the activations of the network at a hidden layer  to obtain feature vectors of length 256 for each image. In `svm.ipynb` and `bow.ipynb` we use gridsearch to obtain the best parameters for either method.
 
+As is visible below none of our our methods developed this managed to outperform those of the previous week, indicating that robust visual descriptors such as SIFT are better at extracting visual features of images for classification than our trained MLP.
+
+| Method/Classifier | Accuracy | Task Number |
+|----------|----------|----------|
+| BoVW + SVM|  0.843 | 1 |
+| BoVw + KNN| 0.830 | 1 |
+| MLP + SVM| 0.649 | 2 |
+| MLP | 0.633 | 2 |
+| MLP + BoVW | 0.592 | 2 |
 
 
 ## Task3 work
