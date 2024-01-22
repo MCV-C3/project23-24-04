@@ -32,23 +32,30 @@ from utils.model import CustomInceptionResNetV2
 from utils.utils import plot_learning_rate, plot_loss_and_accuracy
 from utils.data_generators import create_data_generator
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from utils.mixup_cutmix import mixup, cutmix
 
-
-DATASET_DIR = '/home/gherodes/projects/tf_test/MIT_split'
+DATASET_DIR = '/home/gherodes/projects/tf_test/dataset/MIT_small_train_1'
 NUM_CLASSES = 8
 IMG_SIZE = 256
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 
 EPOCHS = 100
 LEARNING_RATE = 0.001
 PATIENCE=10
 
-DROPOUT = 0.0
-REG_COEFF = 0.01
-NUM_UNITS = 128
-LABEL_SMOOTH_EPSILON=0.2
+DROPOUT = 0.5
+REG_COEFF = 0.001
+NUM_UNITS = 256
+LABEL_SMOOTH_EPSILON=0.1
 
-EXPERIMENT_DIRECTORY = './experiments/baseline_labelsmoothing'
+# CUTMIX=False
+# CUTMIX_ALPHA=0.2
+
+# MIXUP=True
+# MIXUP_ALPHA=0.2
+
+EXPERIMENT_DIRECTORY = './experiments/small_1'
+
 
 
 if not os.path.isdir(EXPERIMENT_DIRECTORY):
@@ -68,16 +75,13 @@ train_generator = create_data_generator(directory=DATASET_DIR + '/train',
                                         batch_size=BATCH_SIZE,
                                         img_size=IMG_SIZE,
                                         shuffle=True,
-                                        augment=False)
+                                        augment=True)
+num_train_files = train_generator.samples
 test_generator = create_data_generator(directory=DATASET_DIR + '/test',
                                         batch_size=BATCH_SIZE,
                                         img_size=IMG_SIZE,
                                         shuffle=False,
                                         augment=False)
-
-
-
-num_train_files = train_generator.samples
 
 
 lr_schedule = tf.keras.experimental.CosineDecay(

@@ -51,9 +51,8 @@ LABEL_SMOOTH_EPSILON = [0.01, 0.05, 0.1, 0.2]
 AUGMENTATIONS = [True, False]
 
 EXPERIMENTS_DIR = './experiments/'
-
-df = pd.DataFrame([], columns=['Dropout', 'NumUnits', 'RegCoeff', 'LabSmooth','Augmentations' 'Accuracy', 'TrainingLoss', 'ValAccuracy', 'ValLoss'])
-
+columns = ['Dropout', 'NumUnits', 'RegCoeff', 'LabSmooth','Augmentations', 'TrainingAccuracy', 'TrainingLoss', 'ValAccuracy', 'ValLoss']
+df = pd.DataFrame([], columns=columns)
 
 # if not os.path.isdir(EXPERIMENT_DIRECTORY):
 #         os.makedirs(EXPERIMENT_DIRECTORY)
@@ -125,6 +124,7 @@ def objective(trial):
     model.save_model(f'{experiment_directory}/last.h5')
 
     config = [dropout, num_units, reg_coeff, lab_smooth, augmentations, history.history['accuracy'], history.history['loss'], history.history['val_accuracy'], history.history['val_loss']]
+  
     df.loc[len(df)] = config
     df.reset_index(drop=True, inplace=True)
     print( max(history.history['val_accuracy']))

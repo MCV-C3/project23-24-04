@@ -4,6 +4,7 @@ from tensorflow.keras import layers, models, regularizers
 from tensorflow.keras.utils import plot_model
 from utils.label_smoothing import label_smooth
 
+
 class CustomInceptionResNetV2:
     def __init__(self, num_classes, img_size, num_units, dropout, reg_coeff, label_smooth_epsilon):
         self.num_classes = num_classes
@@ -38,7 +39,8 @@ class CustomInceptionResNetV2:
         self.model.compile(optimizer='adam',
                            loss=loss,
                            metrics=['accuracy'])
-        
+        plot_model(self.base_model, to_file='InceptionResnetV2.jpg', show_shapes=True, show_layer_names=True)
+        self.base_model.summary()
         self.model.summary()
 
     def train(self, train_generator, validation_generator, epochs=10, callbacks=None):
