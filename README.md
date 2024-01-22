@@ -36,14 +36,23 @@ As is visible below none of our our methods developed this managed to outperform
 
 | Method/Classifier | Accuracy | Task Number |
 |----------|----------|----------|
-| BoVW + SVM|  0.843 | 1 |
-| BoVw + KNN| 0.830 | 1 |
-| MLP + SVM| 0.649 | 2 |
+| BoVW + SVM |  0.843 | 1 |
+| BoVw + KNN | 0.830 | 1 |
+| MLP + SVM | 0.649 | 2 |
 | MLP | 0.633 | 2 |
 | MLP + BoVW | 0.592 | 2 |
 
 
 ## Task3 work
-
+| Method/Classifier | Accuracy | Task Number | Dataset |
+|----------|----------|----------|----------|
+| BoVW + SVM |  0.843 | 1 | MIT_split | 
+| BoVw + KNN | 0.830 | 1 | MIT_split | 
+| MLP + SVM | 0.649 | 2 | MIT_split | 
+| MLP | 0.633 | 2 | MIT_split | 
+| MLP + BoVW | 0.592 | 2 | MIT_split | 
+| InceptionResnetV2 (Best) | 0.94 | 3 | MIT_split | 
+| InceptionResnetV2 (Finetune Backbone) | 0.92 | 3 | MIT_split | 
+| InceptionResNetV2 | 0.89 | 3 | MIT_small_1 | 
 ## Task4 work
 
