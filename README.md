@@ -44,6 +44,16 @@ As is visible below none of our our methods developed this managed to outperform
 
 
 ## Task3 work
+
+This week's tasks were to: 
+- Train a classifier using a pretrained Backbone - we were assigned the InceptionResNetV2 backbone
+- Alter the architecture of the Backbone or subsequent layers and attempt to increase performance
+- Train the best performing architecture on a small version of the dataset 
+
+Our best performing model was the one trained for Task 0, as for Task 1 we focused on making the Backbone lighter by bypassing the last few Inception blocks We chose this approach as we noticed that the InceptionResNetV2 backbone was the heaviest backbone out of all the ones assigned to groups and we made an attempt achieving identical or better accuracy while using less layers.
+
+Below are the results of our experiments from this week and the previous weeks, a clear improvement in performance was observed even when using an small dataset (approx 80% of the size of the original dataset)
+
 | Method/Classifier | Accuracy | Task Number | Dataset |
 |----------|----------|----------|----------|
 | BoVW + SVM |  0.843 | 1 | MIT_split | 
