@@ -64,5 +64,31 @@ Below are the results of our experiments from this week and the previous weeks, 
 | InceptionResnetV2 (Best) | 0.94 | 3 | MIT_split | 
 | InceptionResnetV2 (Finetune Backbone) | 0.92 | 3 | MIT_split | 
 | InceptionResNetV2 | 0.89 | 3 | MIT_small_1 | 
+
+
 ## Task4 work
+
+This week's tasks was to build and train a classifier from scratch while maximizing the following ratio: accuracy / (#parameters/100k).
+Therefore, our goal was to reduce as possible the number of parameters to be learnt without compromissig too much the validation accuracy.
+
+After testing different architectures, we finally consolidated a simple model compound of two hidden layers of Convolutions + MaxPooling operations. We achieved a validation accuracy of 39%, that was significantly increased by applying data augmentation techniques.
+
+Below are the results of our experiments from this and previous weeks. As expected, we see that best results where achieved in Week 3, when using pre-trained backbone model to train our classifier.
+
+| Method/Classifier | Accuracy | Task Number | Dataset |
+|----------|----------|----------|----------|
+| BoVW + SVM |  0.843 | 1 | MIT_split | 
+| BoVw + KNN | 0.830 | 1 | MIT_split | 
+| MLP + SVM | 0.649 | 2 | MIT_split | 
+| MLP | 0.633 | 2 | MIT_split | 
+| MLP + BoVW | 0.592 | 2 | MIT_split | 
+| InceptionResnetV2 (Best) | 0.94 | 3 | MIT_split | 
+| InceptionResnetV2 (Finetune Backbone) | 0.92 | 3 | MIT_split | 
+| InceptionResNetV2 | 0.89 | 3 | MIT_small_1 | 
+| Custom CNN - baseline | 0.39 | 4 | MIT_small_1 | 
+| Custom CNN - pretrained + data augmentation | 0.66 | 4 | MIT_small_1 | 
+| Custom CNN - pretrained + data augmentation + CutMix | 0.63 | 4 | MIT_small_1 | 
+
+
+
 
